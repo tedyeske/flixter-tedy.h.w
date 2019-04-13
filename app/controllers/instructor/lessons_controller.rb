@@ -1,7 +1,6 @@
 class Instructor::LessonsController < ApplicationController
   before_action :authenticate_user!
-
-  before_action :require_authorized_for_current_section
+  before_action :require_authorized_for_current_course, only: [:show]
 
   def new
     @lesson = Lesson.new
@@ -9,7 +8,11 @@ class Instructor::LessonsController < ApplicationController
 
   def create
     @lesson = current_section.lessons.create(lesson_params)
+    if @lesson.valid?
     redirect_to instructor_course_path(current_section.course)
+    else
+      redirect_to root_url, alert: 'Error message here'
+    end
   end
 
   private
@@ -27,7 +30,8 @@ class Instructor::LessonsController < ApplicationController
   end
 
   def lesson_params
-    params.require(:lesson).permit(:title, :subtitle)
+    params.require(:lesson).permit(:title, :subtitle, :video)
+
   end
 
 end
